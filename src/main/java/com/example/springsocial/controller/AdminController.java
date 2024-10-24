@@ -1,6 +1,8 @@
 package com.example.springsocial.controller;
 
+import com.example.springsocial.model.Role;
 import com.example.springsocial.model.User;
+import com.example.springsocial.services.RoleService;
 import com.example.springsocial.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,9 @@ public class AdminController {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleService roleService;
+    
+    @Autowired
     private UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -28,7 +33,18 @@ public class AdminController {
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);
     }
+    	
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/getAllRoles")
+    public ResponseEntity<List<Role>> getAllRoles() {
+        System.out.println("Inside getAllRoles endpoint");
+        List<Role> roles = roleService.getAllRoles();
+        return ResponseEntity.ok(roles);
+    }
 
+
+    
+    
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{userId}")
     public ResponseEntity<String> updateUserRoleAndStatus(

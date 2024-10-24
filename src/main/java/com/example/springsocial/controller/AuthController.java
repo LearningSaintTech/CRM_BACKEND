@@ -73,7 +73,7 @@ public class AuthController {
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setProvider(AuthProvider.local);
-        user.setStatus("inactive");
+        user.setStatus("active");
 
         // Assign default role
         Role userRole = roleRepository.findByName("USER")
