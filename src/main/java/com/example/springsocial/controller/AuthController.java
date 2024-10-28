@@ -11,6 +11,8 @@ import com.example.springsocial.payload.SignUpRequest;
 import com.example.springsocial.repository.RoleRepository;
 import com.example.springsocial.repository.UserRepository;
 import com.example.springsocial.security.TokenProvider;
+import com.example.springsocial.services.EmailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,6 +48,10 @@ public class AuthController {
 
     @Autowired
     private TokenProvider tokenProvider;
+    
+    @Autowired
+    private EmailService emailService;
+    private Map<String, String> otpStorage = new HashMap<>(); // Temporary storage for OTPs
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -73,21 +82,51 @@ public class AuthController {
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setProvider(AuthProvider.local);
-        user.setStatus("active");
+        user.setStatus("inactive");
 
         // Assign default role
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new BadRequestException("User Role not set."));
         user.setRoles(Collections.singletonList(userRole));
-
+        String otp = String.valueOf((int)(Math.random() * 9000) + 1000); // Generate a random 4-digit OTP
+        user.setOtp(otp);
         User result = userRepository.save(user);
+        
+        
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/user/me")
                 .buildAndExpand(result.getId()).toUri();
-
+       
+        try {
+            emailService.sendRegistrationEmail(user.getEmail(), user.getName(), otp);
+        } catch (Exception e) {
+            System.err.println("Failed to send registration email: " + e.getMessage());
+        }
+        
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "User registered successfully"));
     }
+    
+    @GetMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        System.out.println("Received email: " + email);
+        System.out.println("Received OTP: " + otp);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("User not found."));
+        System.out.println("Stored OTP: " + user.getOtp());
+
+        if (user.getOtp().equals(otp)) {
+            user.setEmailVerified(true);
+            user.setOtp(null); // Clear the OTP after successful verification
+            user.setStatus("active");
+            userRepository.save(user);
+            return ResponseEntity.ok(new ApiResponse(true, "Email verified successfully."));
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid OTP."));
+        }
+    }
+
 
 }

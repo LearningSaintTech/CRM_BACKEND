@@ -22,6 +22,12 @@ public class User {
 
     @Column(nullable = false)
     private String name;
+    
+    @Column(name = "otp", nullable = false)
+    private String otp;
+
+    @Column(nullable = false)
+    private Boolean emailVerified = false; // already exists
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -33,7 +39,23 @@ public class User {
     @NotEmpty(message = "At least one role must be selected")
     private List<Role> roles = new ArrayList<>();// Initialize roles as a mutable list
 
-    public Long getId() {
+    public String getOtp() {
+		return otp;
+	}
+
+	public void setOtp(String otp) {
+		this.otp = otp;
+	}
+
+	public Boolean getEmailVerified() {
+		return emailVerified;
+	}
+
+	public void setEmailVerified(Boolean emailVerified) {
+		this.emailVerified = emailVerified;
+	}
+
+	public Long getId() {
 		return id;
 	}
 
@@ -73,13 +95,8 @@ public class User {
 		this.imageUrl = imageUrl;
 	}
 
-	public Boolean getEmailVerified() {
-		return emailVerified;
-	}
-
-	public void setEmailVerified(Boolean emailVerified) {
-		this.emailVerified = emailVerified;
-	}
+	
+	
 
 	public String getPassword() {
 		return password;
@@ -119,12 +136,13 @@ public class User {
 
     private String imageUrl;
 
-    @Column(nullable = false)
-    private Boolean emailVerified = false;
-
+   
     @JsonIgnore
     private String password;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserProfile userProfile;
+    
     @NotNull
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
@@ -133,6 +151,14 @@ public class User {
 
     @Column(nullable = false)
     private String status;
+
+	public UserProfile getUserProfile() {
+		return userProfile;
+	}
+
+	public void setUserProfile(UserProfile userProfile) {
+		this.userProfile = userProfile;
+	}
 
     
 }

@@ -3,6 +3,7 @@ package com.example.springsocial.servicesImpl;
 import com.example.springsocial.exception.ResourceNotFoundException;
 import com.example.springsocial.model.Role;
 import com.example.springsocial.model.User;
+import com.example.springsocial.model.UserProfile;
 import com.example.springsocial.repository.RoleRepository;
 import com.example.springsocial.repository.UserRepository;
 import com.example.springsocial.services.UserService;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -54,4 +57,18 @@ public class UserServiceImpl implements UserService {
 
         return updatedUser;
     }
+    public UserProfile getUserProfileByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+
+        // Retrieve and return the associated UserProfile
+        UserProfile userProfile = user.getUserProfile();
+        if (userProfile == null) {
+            throw new EntityNotFoundException("UserProfile not found for User ID: " + userId);
+        }
+        
+        return userProfile;
+    }
+    
+    
 }
