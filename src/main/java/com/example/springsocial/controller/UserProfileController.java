@@ -2,14 +2,18 @@ package com.example.springsocial.controller;
 
 import com.example.springsocial.model.UserProfile;
 import com.example.springsocial.services.UserProfileService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @RestController
 @RequestMapping("/api/user-profile")
 public class UserProfileController {
@@ -20,11 +24,25 @@ public class UserProfileController {
     // POST API to create or update a UserProfile
     @PostMapping("/{userId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserProfile> createOrUpdateUserProfile(@PathVariable Long userId, @RequestBody UserProfile userProfile) {
-    	System.out.println("inside createOrUpdateUserProfile"+userId);
+    public ResponseEntity<UserProfile> createOrUpdateUserProfile(
+            @PathVariable Long userId,
+            @RequestPart("userProfile") String userProfileJson,
+            @RequestParam("image") MultipartFile image) throws IOException {
+        
+        // Deserialize JSON string to UserProfile object (using ObjectMapper)
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	objectMapper.registerModule(new JavaTimeModule());
+    	UserProfile userProfile = objectMapper.readValue(userProfileJson, UserProfile.class);
+
+        if (image != null && !image.isEmpty()) {
+            userProfile.setImageData(image.getBytes());
+        }
+
         UserProfile savedProfile = userProfileService.saveOrUpdateUserProfile(userId, userProfile);
         return ResponseEntity.ok(savedProfile);
     }
+
+
 
     // GET API to retrieve a UserProfile by user ID
     @GetMapping("/{userId}")

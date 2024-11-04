@@ -28,15 +28,35 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfile saveOrUpdateUserProfile(Long userId, UserProfile userProfile) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+        
+        // Retrieve the existing UserProfile
+        UserProfile existingProfile = userProfileRepository.findByUserId(userId);
+        
+        if (existingProfile != null) {
+            // Update the fields of the existing UserProfile
+            existingProfile.setAboutYou(userProfile.getAboutYou());
+            existingProfile.setAge(userProfile.getAge());
+            existingProfile.setBirthday(userProfile.getBirthday());
+            existingProfile.setCurrentLatitude(userProfile.getCurrentLatitude());
+            existingProfile.setCurrentLongitude(userProfile.getCurrentLongitude());
+            existingProfile.setGender(userProfile.getGender());
+            
+            // Update the image if provided
+            if (userProfile.getImageData() != null) {
+                existingProfile.setImageData(userProfile.getImageData());
+            }
 
-        // Set the user in the userProfile before saving
-        userProfile.setUser(user);
-
-        // Set the bi-directional relationship
-        user.setUserProfile(userProfile);
-
-        return userProfileRepository.save(userProfile);
+            // Save the updated profile
+            return userProfileRepository.save(existingProfile);
+        } else {
+            // Set the user in the userProfile before saving
+            userProfile.setUser(user);
+            
+            // Save as a new profile if it doesn't exist
+            return userProfileRepository.save(userProfile);
+        }
     }
+
 
 
     public UserProfile getUserProfileByUserId(Long userId) {

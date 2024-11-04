@@ -55,7 +55,9 @@ public class UserProfile {
     @Column(name = "interest")
     private List<String> interests;
 
-
+    @Lob // Use this if storing the image data directly
+    private byte[] imageData;
+    
     public Long getId() {
         return id;
     }
@@ -149,6 +151,30 @@ public class UserProfile {
         FIGURING_OUT,
         HANGOUT
     }
+
+	public Double getCurrentLatitude() {
+		return currentLatitude;
+	}
+
+	public void setCurrentLatitude(Double currentLatitude) {
+		this.currentLatitude = currentLatitude;
+	}
+
+	public Double getCurrentLongitude() {
+		return currentLongitude;
+	}
+
+	public void setCurrentLongitude(Double currentLongitude) {
+		this.currentLongitude = currentLongitude;
+	}
+
+	public byte[] getImageData() {
+		return imageData;
+	}
+
+	public void setImageData(byte[] imageData) {
+		this.imageData = imageData;
+	}
 
 }
 

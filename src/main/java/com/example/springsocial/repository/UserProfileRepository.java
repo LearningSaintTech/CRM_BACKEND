@@ -22,4 +22,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
 		        @Param("longitude") Double longitude,
 		        @Param("radius") Double radius);
 
+	
+    UserProfile findByUserId(Long userId);
+
 }
