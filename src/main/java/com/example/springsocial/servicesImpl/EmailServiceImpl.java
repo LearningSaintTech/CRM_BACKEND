@@ -38,6 +38,15 @@ public class EmailServiceImpl implements EmailService {
 	        e.printStackTrace(); // Handle the exception
 	    }
 	}
+	@Override
+	public void sendPasswordResetEmail(String email, String otp) {
+		System.out.println("showinggg otp is"+otp);
+	    SimpleMailMessage message = new SimpleMailMessage();
+	    message.setTo(email);
+	    message.setSubject("Password Reset Request");
+	    message.setText("Your OTP for password reset is: " + otp + "\nIt will expire in 10 minutes.");
 
+	    mailSender.send(message);
+	}
 	
 }

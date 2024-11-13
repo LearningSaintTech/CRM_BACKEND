@@ -6,9 +6,9 @@ spring:
       enabled: true            # Enable multipart handling
 
   datasource:
-    url: jdbc:mysql://localhost:3306/spring_social?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
-    username: root
-    password: root
+    url: jdbc:mysql://52.53.88.145:3306/spring_social?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: Hr_Admin
+    password: Hr_Admin@123!
 
   jpa:
     show-sql: true
@@ -52,8 +52,8 @@ spring:
 
   mail:
     host: smtp.gmail.com
-    username: noreply@possesivepanda.com
-    password: zmpmvihnrcemkufu
+    username:  ashishak063@gmail.com
+    password: enzwlnfhxkqudqrg
     port: 587
     properties:
       mail:

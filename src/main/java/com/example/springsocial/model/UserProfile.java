@@ -21,9 +21,20 @@ public class UserProfile {
     @JsonBackReference
     private User user;
 
-    @Column(name = "age")
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "age")
     private String age;
 
+    @Column(name = "name")
+    private String name;
+    
     @Column(name = "birthday")
     private LocalDate birthday;
 

@@ -70,6 +70,9 @@ public class TokenProvider {
 
         return Long.parseLong(claims.getSubject());
     }
+    
+    
+   
 
     public boolean validateToken(String authToken) {
         try {

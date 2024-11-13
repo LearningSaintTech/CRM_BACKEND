@@ -40,6 +40,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             existingProfile.setCurrentLatitude(userProfile.getCurrentLatitude());
             existingProfile.setCurrentLongitude(userProfile.getCurrentLongitude());
             existingProfile.setGender(userProfile.getGender());
+            existingProfile.setName(userProfile.getName());
             
             // Update the image if provided
             if (userProfile.getImageData() != null) {

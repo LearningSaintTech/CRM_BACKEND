@@ -53,7 +53,7 @@ public class UserProfileController {
     }
     
     @GetMapping("/nearby")
-    public ResponseEntity<List<UserProfile>> getNearbyUsers(
+    public List<UserProfile> getNearbyUsers(
             @RequestParam("userId") Long userId,  // Add userId parameter
             @RequestParam("latitude") Double latitude,
             @RequestParam("longitude") Double longitude,
@@ -61,7 +61,17 @@ public class UserProfileController {
 
         // Pass userId to the service to filter it out
         List<UserProfile> nearbyUsers = userProfileService.getNearbyUsers(userId, latitude, longitude, radius);
-        return ResponseEntity.ok(nearbyUsers);
+        System.out.println("User ID: inside controller      dsjcjdndrnj " );
+
+        nearbyUsers.forEach(userProfile -> {
+            System.out.println("User ID: " + userProfile.getId());
+            System.out.println("Name: " + userProfile.getUser().getName());
+            System.out.println("Latitude: " + userProfile.getCurrentLatitude());
+            System.out.println("Longitude: " + userProfile.getCurrentLongitude());
+            System.out.println("----------");
+        });
+        
+        return nearbyUsers;
     }
 
 }
