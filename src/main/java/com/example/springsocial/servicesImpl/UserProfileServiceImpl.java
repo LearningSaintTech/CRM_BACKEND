@@ -46,14 +46,16 @@ public class UserProfileServiceImpl implements UserProfileService {
             if (userProfile.getImageData() != null) {
                 existingProfile.setImageData(userProfile.getImageData());
             }
-
-            // Save the updated profile
+            if(user.getProfileFlag()==false)
+            {
+            	System.out.println("update the flag");
+            user.setProfileFlag(true);
+            userRepository.save(user);
+            }
             return userProfileRepository.save(existingProfile);
         } else {
-            // Set the user in the userProfile before saving
             userProfile.setUser(user);
             
-            // Save as a new profile if it doesn't exist
             return userProfileRepository.save(userProfile);
         }
     }

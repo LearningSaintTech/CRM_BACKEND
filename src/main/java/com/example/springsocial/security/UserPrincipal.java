@@ -19,13 +19,15 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     private String name;  // Add a field for the name
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
+    private Boolean profileFlag;
 
-    public UserPrincipal(Long id, String email, String password,String name, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String email, String password,String name,Boolean profileFlag, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name; // Initialize the name
         this.authorities = authorities;
+        this.profileFlag=profileFlag;
     }
 
     public static UserPrincipal create(User user) {
@@ -36,13 +38,42 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getName(),  // Pass the name here
+                user.getName(),
+                user.getProfileFlag(),
                 authorities
         );
     }
 
 
-    public static UserPrincipal create(User user, Map<String, Object> attributes) {
+    public Boolean getProfileFlag() {
+		return profileFlag;
+	}
+
+	public void setProfileFlag(Boolean profileFlag) {
+		this.profileFlag = profileFlag;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+
+	public static UserPrincipal create(User user, Map<String, Object> attributes) {
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         userPrincipal.setAttributes(attributes);
         return userPrincipal;

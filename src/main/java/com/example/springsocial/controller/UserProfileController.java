@@ -28,11 +28,21 @@ public class UserProfileController {
             @PathVariable Long userId,
             @RequestPart("userProfile") String userProfileJson,
             @RequestParam("image") MultipartFile image) throws IOException {
-        
+        System.out.println("inside update");
         // Deserialize JSON string to UserProfile object (using ObjectMapper)
     	ObjectMapper objectMapper = new ObjectMapper();
     	objectMapper.registerModule(new JavaTimeModule());
     	UserProfile userProfile = objectMapper.readValue(userProfileJson, UserProfile.class);
+
+    	
+    	  if (image != null && !image.isEmpty()) {
+    	        System.out.println("Received image:"+image);
+    	        System.out.println("Original Filename: " + image.getOriginalFilename());
+    	        System.out.println("Content Type: " + image.getContentType());
+    	        System.out.println("Size: " + image.getSize() + " bytes");
+    	    } else {
+    	        System.out.println("No image received or image is empty.");
+    	    }
 
         if (image != null && !image.isEmpty()) {
             userProfile.setImageData(image.getBytes());

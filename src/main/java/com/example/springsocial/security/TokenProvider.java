@@ -52,6 +52,7 @@ public class TokenProvider {
         return Jwts.builder()
                 .setSubject(Long.toString(userPrincipal.getId()))
                 .claim("name", userPrincipal.getName())
+                .claim("profileFlag", userPrincipal.getProfileFlag())
                 .claim("email", userPrincipal.getEmail())
                 .claim("roles", roles)
                 .setIssuedAt(new Date())

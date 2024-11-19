@@ -27,6 +27,8 @@ public class User {
     @Column(name = "otp_expiry")
     private LocalDateTime otpExpiry;
 
+    @Column(nullable = false)
+    private Boolean profileFlag = false;
     
     public String getResetOtp() {
 		return resetOtp;
@@ -44,6 +46,8 @@ public class User {
 		this.otpExpiry = otpExpiry;
 	}
 
+	
+	
 	@Column(nullable = false)
     private String name;
     
@@ -51,9 +55,20 @@ public class User {
     private String otp;
 
     @Column(nullable = false)
-    private Boolean emailVerified = false; // already exists
+    private Boolean emailVerified = false; 
 
+    @OneToMany(mappedBy = "swiper", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Swipe> swipesMade;
 
+    @OneToMany(mappedBy = "swipee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Swipe> swipesReceived;
+
+    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Match> matchesInitiated;
+
+    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Match> matchesReceived;
+    
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -182,6 +197,46 @@ public class User {
 
 	public void setUserProfile(UserProfile userProfile) {
 		this.userProfile = userProfile;
+	}
+
+	public Boolean getProfileFlag() {
+		return profileFlag;
+	}
+
+	public void setProfileFlag(Boolean profileFlag) {
+		this.profileFlag = profileFlag;
+	}
+
+	public List<Swipe> getSwipesMade() {
+		return swipesMade;
+	}
+
+	public void setSwipesMade(List<Swipe> swipesMade) {
+		this.swipesMade = swipesMade;
+	}
+
+	public List<Swipe> getSwipesReceived() {
+		return swipesReceived;
+	}
+
+	public void setSwipesReceived(List<Swipe> swipesReceived) {
+		this.swipesReceived = swipesReceived;
+	}
+
+	public List<Match> getMatchesInitiated() {
+		return matchesInitiated;
+	}
+
+	public void setMatchesInitiated(List<Match> matchesInitiated) {
+		this.matchesInitiated = matchesInitiated;
+	}
+
+	public List<Match> getMatchesReceived() {
+		return matchesReceived;
+	}
+
+	public void setMatchesReceived(List<Match> matchesReceived) {
+		this.matchesReceived = matchesReceived;
 	}
 
     

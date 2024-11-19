@@ -1,8 +1,8 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 5MB       # Maximum file size allowed for upload
-      max-request-size: 5MB    # Maximum request size (sum of all parts)
+      max-file-size: 20MB       # Maximum file size allowed for upload
+      max-request-size: 20MB    # Maximum request size (sum of all parts)
       enabled: true            # Enable multipart handling
 
   datasource:
