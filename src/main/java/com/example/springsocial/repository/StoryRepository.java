@@ -14,7 +14,7 @@ import com.example.springsocial.model.Story;
 public interface StoryRepository extends JpaRepository<Story, Long> {
 
 	
-	@Query("SELECT s FROM Story s WHERE " +
+	@Query("SELECT s FROM Story s JOIN FETCH s.user WHERE " +
 		       "6371 * acos(cos(radians(:latitude)) * cos(radians(s.latitude)) * " +
 		       "cos(radians(s.longitude) - radians(:longitude)) + " +
 		       "sin(radians(:latitude)) * sin(radians(s.latitude))) <= :radius " +
@@ -29,10 +29,8 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
 		       "6371 * acos(cos(radians(:latitude)) * cos(radians(s.latitude)) * " +
 		       "cos(radians(s.longitude) - radians(:longitude)) + " +
 		       "sin(radians(:latitude)) * sin(radians(s.latitude))) <= :radius " +
-		       "AND s.expirationAt > CURRENT_TIMESTAMP " +
-		       "AND s.user.id = :userId")
+		       "AND s.expirationAt > CURRENT_TIMESTAMP ")
 		List<Story> findAllStoriesByUserIdWithinRadiusAndNotExpired(
-		        @Param("userId") Long userId,
 		        @Param("latitude") Double latitude,
 		        @Param("longitude") Double longitude,
 		        @Param("radius") Double radius);
@@ -43,5 +41,10 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     @Transactional
     @Query("DELETE FROM Story s WHERE s.user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+	
+	//added 20/11/24
+	@Query("SELECT s FROM Story s WHERE s.user.id = :userId")
+	List<Story> findStoriesByUserId(@Param("userId") Long userId);
+
 	
 }

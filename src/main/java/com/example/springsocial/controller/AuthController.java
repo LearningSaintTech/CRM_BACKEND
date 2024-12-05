@@ -79,7 +79,6 @@ public class AuthController {
             throw new BadRequestException("Email address already in use.");
         }
 
-        // Creating user's account
         User user = new User();
         
         user.setName(signUpRequest.getName());
@@ -88,8 +87,7 @@ public class AuthController {
         user.setProvider(AuthProvider.local);
         user.setStatus("inactive");
 
-        // Assign default role
-        Role userRole = roleRepository.findByName("USER")
+         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new BadRequestException("User Role not set."));
         user.setRoles(Collections.singletonList(userRole));
         String otp = String.valueOf((int)(Math.random() * 9000) + 1000); // Generate a random 4-digit OTP

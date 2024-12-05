@@ -29,7 +29,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            // First, try to extract the JWT token from the header or query parameters
             String jwt = getJwtFromRequest(request);
+            System.out.println("Extracted JWT: " + jwt);  // This will print the extracted JWT token for debugging
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 Long userId = tokenProvider.getUserIdFromToken(jwt);
@@ -38,20 +40,35 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // Set the authentication in the SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("User authenticated with ID: " + userId);  // Log the authenticated user's ID
+            } else {
+                System.out.println("Invalid JWT or empty token");  // Log if token is invalid or missing
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
+            System.out.println("Exception occurred: " + ex.getMessage());  // Log the exception message
         }
 
+        // Proceed with the filter chain
         filterChain.doFilter(request, response);
     }
 
+    // Method to extract JWT from request (header or query parameter)
     private String getJwtFromRequest(HttpServletRequest request) {
+        // Try to extract JWT from Authorization header
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);  // Extract the token after "Bearer "
         }
-        return null;
+
+        // If JWT is not in header, try to extract from query parameters
+        String token = request.getParameter("token");
+        if (StringUtils.hasText(token)) {
+            return token;  // Return token from query parameter
+        }
+
+        return null;  // No token found
     }
 }

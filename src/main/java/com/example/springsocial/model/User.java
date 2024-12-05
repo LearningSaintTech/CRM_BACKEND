@@ -126,16 +126,17 @@ public class User {
 		this.email = email;
 	}
 
-	public String getImageUrl() {
-		return imageUrl;
-	}
-
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
-	}
-
+	 
 	
 	
+
+	public byte[] getImageData() {
+		return imageData;
+	}
+
+	public void setImageData(byte[] imageData) {
+		this.imageData = imageData;
+	}
 
 	public String getPassword() {
 		return password;
@@ -173,8 +174,8 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    private String imageUrl;
-
+	@Lob // Use this if storing the image data directly
+    private byte[] imageData;
    
     @JsonIgnore
     private String password;

@@ -1,10 +1,15 @@
+//last changes 20/11/24
 package com.example.springsocial.services;
 
 
+import com.example.springsocial.DTO.StoryDTO;
+import com.example.springsocial.DTO.UserStoriesDTO;
+import com.example.springsocial.exception.StoryNotFoundException;
 import com.example.springsocial.model.Story;
 import com.example.springsocial.model.User;
 import com.example.springsocial.model.UserProfile;
 import com.example.springsocial.repository.StoryRepository;
+import com.example.springsocial.repository.StoryViewRepository;
 import com.example.springsocial.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +21,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StoryService {
@@ -29,11 +36,15 @@ public class StoryService {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private StoryViewRepository storyViewRepository;
 	   
 	   @Autowired
-	    public StoryService(StoryRepository storyRepository, UserRepository userRepository) {
+	    public StoryService(StoryRepository storyRepository, UserRepository userRepository,StoryViewRepository storyViewRepository) {
 	        this.storyRepository = storyRepository;
 	        this.userRepository = userRepository;
+	        this.storyViewRepository = storyViewRepository;
 	    }
     
 
@@ -60,24 +71,51 @@ public class StoryService {
     }
     
     // Method to get a story by its ID
-    public Story getStoryById(Long id) {
-        // Use Optional to safely handle the case where the story might not be found
-        Optional<Story> story = storyRepository.findById(id);
-        System.out.println("Story by id is here" + story);
-        return story.orElseThrow(() -> new RuntimeException("Story not found with ID: " + id));
+    public User getStoryById(Long id) {
+    	System.out.println("fetching story by id>>>>>>>>>>");
+        return userRepository.findById(id)
+                .orElseThrow(() -> new StoryNotFoundException("Story not found with ID: " + id));
     }
 
 
     
-    public List<Story> getStoriesWithinRadius(Double latitude, Double longitude, Double radius) {
-    	System.out.println("calling in service>>>>>>>>>>>>>>>>>>"+storyRepository.findStoriesWithinRadiusAndNotExpired(latitude, longitude, radius));
-        return storyRepository.findStoriesWithinRadiusAndNotExpired(latitude, longitude, radius);
+    public List<UserStoriesDTO> getGroupedStoriesWithinRadius(Double latitude, Double longitude, Double radius) {
+        List<Story> stories = storyRepository.findStoriesWithinRadiusAndNotExpired(latitude, longitude, radius);
+
+        // Group stories by userId
+        Map<Long, List<Story>> groupedStories = stories.stream()
+                .collect(Collectors.groupingBy(story -> story.getUser().getId()));
+
+        // Convert grouped stories into UserStoriesDTO
+        return groupedStories.entrySet().stream()
+                .map(entry -> {
+                    Long userId = entry.getKey();
+                    List<Story> userStories = entry.getValue();
+                    String userName = userStories.get(0).getUser().getName(); // All stories have the same user
+
+                    // Map each Story to StoryDTO
+                    List<StoryDTO> storyDTOs = userStories.stream()
+                            .map(story -> new StoryDTO(
+                                    story.getId(),
+                                    story.getTitle(),
+                                    story.getLatitude(),
+                                    story.getLongitude(),
+                                    story.getFile(),
+                                    userId,
+                                    userName
+                            ))
+                            .collect(Collectors.toList());
+
+                    return new UserStoriesDTO(userId, userName, storyDTOs);
+                })
+                .collect(Collectors.toList());
     }
+
     
-    public List<Story> getAllStoriesByUserIdWithinRadiusAndNotExpired(Long userId, Double latitude, Double longitude, Double radius) {
-    	System.out.println("calling in story service class>>>>>>>>>>>>>>>");
-        return storyRepository.findAllStoriesByUserIdWithinRadiusAndNotExpired(userId, latitude, longitude, radius);
-    }
+//    public List<Story> getAllStoriesByUserIdWithinRadiusAndNotExpired(Long userId, Double latitude, Double longitude, Double radius) {
+//    	System.out.println("calling in story service class>>>>>>>>>>>>>>>");
+//        return storyRepository.findAllStoriesByUserIdWithinRadiusAndNotExpired(userId, latitude, longitude, radius);
+//    }
 
 
     public void deleteStoriesByUserId(Long userId) {
@@ -85,13 +123,17 @@ public class StoryService {
     }
 
 
+    //delete by story id's
 	public void deleteById(Long id) {
 		// TODO Auto-generated method stub
 		System.out.println("delet by story id");
+		storyViewRepository.deleteByStoryId(id);
 		storyRepository.deleteById(id);
 	}
 	
-
-
+	//get story by user id 
+	public List<Story> getStoriesByUserId(Long userId) {
+	    return storyRepository.findStoriesByUserId(userId);
+	}
 }
 

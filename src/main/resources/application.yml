@@ -1,9 +1,9 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 20MB       # Maximum file size allowed for upload
-      max-request-size: 20MB    # Maximum request size (sum of all parts)
-      enabled: true            # Enable multipart handling
+      max-file-size: 20MB       
+      max-request-size: 20MB    
+      enabled: true            
 
   datasource:
     url: jdbc:mysql://52.53.88.145:3306/spring_social?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false

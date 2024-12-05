@@ -76,7 +76,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         System.out.println(("xcfvg")+oAuth2UserInfo);
         user.setName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
-        user.setImageUrl(oAuth2UserInfo.getImageUrl());
         user.setStatus("active");
 
         // Assign default role
@@ -89,7 +88,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
         existingUser.setName(oAuth2UserInfo.getName());
-        existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
+        existingUser.getImageData();
         return userRepository.save(existingUser);
     }
 

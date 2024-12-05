@@ -1,3 +1,4 @@
+//last changes in 20/11/24
 package com.example.springsocial.controller;
 
 
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.springsocial.DTO.StoryDTO;
+import com.example.springsocial.DTO.UserStoriesDTO;
 import com.example.springsocial.model.Story;
 import com.example.springsocial.model.User;
 import com.example.springsocial.services.StoryService;
@@ -56,29 +59,14 @@ public class StoryController {
 
     //Show stories within lat & long 
     @GetMapping("/nearby")
-    public List<Story> getStoriesWithinRadius(@RequestParam Double latitude,
-                                              @RequestParam Double longitude,
-                                              @RequestParam Double radius) {
-    	System.out.println("get stories nearby");
-        return storyService.getStoriesWithinRadius(latitude, longitude, radius);
+    public List<UserStoriesDTO> getGroupedStoriesWithinRadius(@RequestParam Double latitude,
+                                                              @RequestParam Double longitude,
+                                                              @RequestParam Double radius) {
+        // Call the service to get grouped stories
+        return storyService.getGroupedStoriesWithinRadius(latitude, longitude, radius);
     }
-    
-    
-    @GetMapping("/user/nearby")
-    public ResponseEntity<List<Story>> getStoriesByUserIdWithinRadius(
-            @RequestParam Long userId,
-            @RequestParam Double latitude,
-            @RequestParam Double longitude,
-            @RequestParam Double radius) {
-    	System.out.println("show all stories withing radius>>>>"+userId);
-        List<Story> stories = storyService.getAllStoriesByUserIdWithinRadiusAndNotExpired(userId, latitude, longitude, radius);
-        System.out.println("storiesstoriesstoriesstories"+stories);
-        if (stories.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(stories);
-    }
-    
+
+
     @DeleteMapping("/story/{id}")
     public ResponseEntity<String> deleteStoriesById(@PathVariable Long id) {
     	System.out.println("running in delete method>>>:"+id);
@@ -86,7 +74,14 @@ public class StoryController {
         return ResponseEntity.ok("Deleted successfully!");
     }
     
+    @GetMapping("/story/{id}")
+    public ResponseEntity<User> showStoriesById(@PathVariable Long id) {
+    	System.out.println("showing story by idsss>>>:"+id);
+        return ResponseEntity.ok(storyService.getStoryById(id));
+    }
+    
     //Delete stories by user ID
+    //20/11/24
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> deleteStoriesByUserId(@PathVariable Long userId) {
     	System.out.println("running in delete method>>>:"+userId);
@@ -94,6 +89,12 @@ public class StoryController {
         return ResponseEntity.noContent().build();
     }
 
-   
+    //get story by userId
+    //20/11/24
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Story>> getStoriesByUserId(@PathVariable Long userId) {
+        List<Story> stories = storyService.getStoriesByUserId(userId);
+        return ResponseEntity.ok(stories);
+    }
         
 }
