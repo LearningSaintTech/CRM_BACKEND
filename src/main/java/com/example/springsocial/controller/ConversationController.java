@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springsocial.DTO.ConversationResponseDto;
+import com.example.springsocial.model.Conversation;
 import com.example.springsocial.model.Message;
 import com.example.springsocial.payload.ConversationResponse;
 import com.example.springsocial.services.ConversationService;
@@ -80,5 +83,12 @@ public class ConversationController {
 
         return conversationResponseDtos;
     }
+    @PostMapping("/create")
+    public ResponseEntity<Integer> createConversation(@RequestParam Long user1Id, @RequestParam Long user2Id) {
+        System.out.println("user1Id: " + user1Id + ", user2Id: " + user2Id);
+        Integer conversationId = conversationService.createOrGetConversation(user1Id, user2Id);
+        return ResponseEntity.ok(conversationId);
+    }
+
 
 }

@@ -10,4 +10,7 @@ public interface UserProfileService {
 	public UserProfile getUserProfileByUserId(Long userId);
 
     public List<UserProfile> getNearbyUsers(Long userId, Double latitude, Double longitude, Double radius) ;
+    
+    public void updateUserLocation(Long userId, Double latitude, Double longitude);
+
 }

@@ -17,6 +17,7 @@ import com.example.springsocial.security.TokenProvider;
 import com.example.springsocial.services.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -105,28 +106,46 @@ public class AuthController {
         } catch (Exception e) {
             System.err.println("Failed to send registration email: " + e.getMessage());
         }
-        
-        return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "User registered successfully"));
+        ApiResponse successResponse = new ApiResponse.Builder()
+                .statusCode(200)
+                .status("Success")
+                .reason("OK")
+                .data("signup success")
+                .build();
+
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+//        return ResponseEntity.created(location)
+//                .body(new ApiResponse(true, "User registered successfully"));
     }
     
     @GetMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        System.out.println("Received email: " + email);
-        System.out.println("Received OTP: " + otp);
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("User not found."));
-        System.out.println("Stored OTP: " + user.getOtp());
 
         if (user.getOtp().equals(otp)) {
             user.setEmailVerified(true);
-            user.setOtp(null); // Clear the OTP after successful verification
+            user.setOtp(null);
             user.setStatus("active");
             userRepository.save(user);
-            return ResponseEntity.ok(new ApiResponse(true, "Email verified successfully."));
+
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(200)
+                    .status("Success")
+                    .reason("OK")
+                    .data("Email verified successfully")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid OTP."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(400)
+                    .status("Error")
+                    .reason("Bad Request")
+                    .data("Invalid OTP")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -136,20 +155,32 @@ public class AuthController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("User not found."));
 
-        // Generate a new OTP
-        String newOtp = String.valueOf((int) (Math.random() * 9000) + 1000); // 4-digit OTP
+        String newOtp = String.valueOf((int) (Math.random() * 9000) + 1000);
         user.setOtp(newOtp);
         userRepository.save(user);
 
         try {
-            // Resend the OTP email
             emailService.sendRegistrationEmail(user.getEmail(), user.getName(), newOtp);
         } catch (Exception e) {
             System.err.println("Failed to resend OTP email: " + e.getMessage());
-            return ResponseEntity.status(500).body(new ApiResponse(false, "Failed to resend OTP. Please try again."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(500)
+                    .status("Error")
+                    .reason("Internal Server Error")
+                    .data("Failed to resend OTP. Please try again.")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return ResponseEntity.ok(new ApiResponse(true, "OTP resent successfully"));
+        ApiResponse response = new ApiResponse.Builder()
+                .statusCode(200)
+                .status("Success")
+                .reason("OK")
+                .data("OTP resent successfully")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 //    @GetMapping("/verify-otp")
@@ -179,61 +210,82 @@ public class AuthController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("User not found."));
 
-        // Generate OTP
-        String otp = String.valueOf((int)(Math.random() * 9000) + 1000);
+        String otp = String.valueOf((int) (Math.random() * 9000) + 1000);
         user.setResetOtp(otp);
-        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10)); // OTP valid for 10 minutes
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
-        // Send OTP email
         emailService.sendPasswordResetEmail(email, otp);
-        System.out.println("otp is>>>>"+otp);
-        
-        return ResponseEntity.ok(new ApiResponse(true, "OTP sent to your email."));
+
+        ApiResponse response = new ApiResponse.Builder()
+                .statusCode(200)
+                .status("Success")
+                .reason("OK")
+                .data("OTP sent to your email")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 
     
     @PostMapping("/verify-reset-otp")
     public ResponseEntity<?> verifyResetOtp(@RequestBody VerifyOtpRequest request) {
-    	System.out.println("request>>>>>>>>>>"+request);
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("User not found."));
-        System.out.println("helloooo"+user);
 
-        System.out.println("showing otp 1 is:"+user.getResetOtp());
-        System.out.println("showing otp 2 is:"+request.getOtp());
-        // Check if OTP is valid and not expired
         if (user.getResetOtp().equals(request.getOtp()) && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
-        	System.out.println("helllooooo");
-            return ResponseEntity.ok(new ApiResponse(true, "OTP verified. You can now reset your password."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(200)
+                    .status("Success")
+                    .reason("OK")
+                    .data("OTP verified. You can now reset your password.")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid or expired OTP."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(400)
+                    .status("Error")
+                    .reason("Bad Request")
+                    .data("Invalid or expired OTP")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
+
     
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword1(@RequestBody ChangeNewPassword passwordRequest) {
+    public ResponseEntity<?> resetPassword(@RequestBody ChangeNewPassword passwordRequest) {
         User user = userRepository.findByEmail(passwordRequest.getEmail())
                 .orElseThrow(() -> new BadRequestException("User not found."));
-        
-        
-        System.out.println("Received OTP: " + passwordRequest.getOtp());
-        System.out.println("Stored OTP: " + user.getResetOtp());
 
-        // Check if OTP is valid and not expired
         if (user.getResetOtp().equals(passwordRequest.getOtp()) && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
-            // Reset password
             user.setPassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
-            user.setResetOtp(null); // Clear the OTP after successful reset
+            user.setResetOtp(null);
             user.setOtpExpiry(null);
             userRepository.save(user);
 
-            return ResponseEntity.ok(new ApiResponse(true, "Password reset successfully."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(200)
+                    .status("Success")
+                    .reason("OK")
+                    .data("Password reset successfully")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid or expired OTP."));
+            ApiResponse response = new ApiResponse.Builder()
+                    .statusCode(400)
+                    .status("Error")
+                    .reason("Bad Request")
+                    .data("Invalid or expired OTP")
+                    .build();
+
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-    }     
+    }
 
 }

@@ -42,6 +42,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Inte
     	            "ORDER BY M.timestamp DESC;"
     	)
     	List<ConversationResponse> findConversationsByUserId(Long userId);
+    Optional<Conversation> findByUser1IdAndUser2IdOrUser2IdAndUser1Id(Long user1Id, Long user2Id, Long user2IdReverse, Long user1IdReverse);
 
 //    List<MessageRequest> findAllByConversationIdOrderByTimestamp(int conversationId);
 

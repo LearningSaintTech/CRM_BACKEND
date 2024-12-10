@@ -83,5 +83,19 @@ public class UserProfileController {
         
         return nearbyUsers;
     }
+    
+    
+ // PATCH API to update current latitude and longitude
+    @PatchMapping("/{userId}/location")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> updateLocation(
+            @PathVariable Long userId,
+            @RequestParam("latitude") Double latitude,
+            @RequestParam("longitude") Double longitude) {
+        // Call the service to update latitude and longitude
+        userProfileService.updateUserLocation(userId, latitude, longitude);
+        return ResponseEntity.ok("Location updated successfully");
+    }
+
 
 }

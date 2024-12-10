@@ -151,7 +151,13 @@ public class UserProfile {
     public enum Gender {
         MALE,
         FEMALE,
-        OTHER
+        BISEXUAL,
+        TRANSGENDER,
+        QUEER,
+        GAY,
+        LESBIAN,
+        OTHERS
+
     }
 
     public enum RelationshipGoal {
